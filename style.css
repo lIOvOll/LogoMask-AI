@@ -1,0 +1,46 @@
+/* Sidebar Styles */
+[data-testid="stSidebarNav"] ul li:first-child {
+    display: none;
+}
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #F4F6F9 0%, #D6EAF8 100%);
+}
+[data-testid="stSidebarNav"] span {
+    font-size: 18px !important;
+    font-weight: 500;
+    color: #2C3E50;
+}
+
+/* Card UI Configuration */
+.card-container {
+    border: 1px solid #E0E6ED;
+    border-radius: 12px;
+    padding: 35px 20px;
+    background-color: #FFFFFF;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    height: 100%;
+    margin-bottom: 15px;
+}
+.card-container:hover {
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+    border-color: #0d6efd;
+}
+.card-icon {
+    font-size: 55px;
+    margin-bottom: 15px;
+}
+.card-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2C3E50;
+    margin-bottom: 10px;
+}
+.card-text {
+    font-size: 16px;
+    color: #6C7A89;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
