@@ -71,7 +71,7 @@ if st.session_state.tahap == 'upload':
 elif st.session_state.tahap == 'proses':
     uploaded_file = st.session_state.uploaded_file
     
-    with st.status("⏳ Memproses pipeline...", expanded=True) as status:
+    with st.status("⏳ Memproses pipeline AI...", expanded=True) as status:
         my_bar = st.progress(0)
         teks_status = st.empty()
         start_time = time.time()
@@ -81,6 +81,7 @@ elif st.session_state.tahap == 'proses':
         temp_input.write(uploaded_file.getvalue())
         temp_input.close()
         
+        # File sementara untuk output mentah (mp4v)
         temp_output_raw = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
         temp_output_raw.close()
 
@@ -89,6 +90,7 @@ elif st.session_state.tahap == 'proses':
         width, height = int(cap.get(3)), int(cap.get(4))
         fps, total_frames = int(cap.get(5)), int(cap.get(7))
 
+        # Menggunakan mp4v agar tidak error di server
         out = cv2.VideoWriter(temp_output_raw.name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
 
         frame_count = 0
@@ -125,15 +127,29 @@ elif st.session_state.tahap == 'proses':
         cap.release()
         out.release()
         
+        # --- PROSES KONVERSI FFMPEG UNTUK PREVIEW WEB ---
+        status.update(label="🔄 Menyiapkan video untuk preview browser...", state="running")
+        
+        # Buat file sementara untuk hasil akhir yang sudah dikonversi
+        temp_output_final = tempfile.NamedTemporaryFile(delete=False, suffix='.mp4')
+        temp_output_final.close()
+        
+        # Menjalankan FFmpeg: ubah codec menjadi libx264 agar ramah browser web
+        os.system(f"ffmpeg -y -i {temp_output_raw.name} -vcodec libx264 -preset veryfast {temp_output_final.name}")
+        # ------------------------------------------------
+        
         st.session_state.waktu_proses = round(time.time() - start_time, 2)
         st.session_state.total_frame = frame_count
         status.update(label="Selesai", state="complete", expanded=False)
 
-    with open(temp_output_raw.name, 'rb') as f:
+    # Membaca file hasil akhir yang sudah dikonversi
+    with open(temp_output_final.name, 'rb') as f:
         st.session_state.video_hasil = f.read()
         
+    # Bersihkan memori server
     os.unlink(temp_input.name)
     os.unlink(temp_output_raw.name)
+    os.unlink(temp_output_final.name)
     
     st.session_state.tahap = 'hasil'
     st.rerun()
@@ -146,7 +162,9 @@ elif st.session_state.tahap == 'hasil':
     col_m2.metric("Total Frame", st.session_state.total_frame)
     col_m3.metric("Kecepatan Proses", f"{round(st.session_state.total_frame / st.session_state.waktu_proses, 1) if st.session_state.waktu_proses > 0 else 0} FPS")
     
+    # Video preview sekarang akan berjalan lancar!
     st.video(st.session_state.video_hasil)
+    
     col1, col2 = st.columns(2)
     with col1:
         st.download_button("Download", st.session_state.video_hasil, "output_video.mp4", "video/mp4", use_container_width=True, type="primary")
