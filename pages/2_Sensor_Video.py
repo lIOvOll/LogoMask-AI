@@ -89,7 +89,7 @@ elif st.session_state.tahap == 'proses':
         width, height = int(cap.get(3)), int(cap.get(4))
         fps, total_frames = int(cap.get(5)), int(cap.get(7))
 
-        out = cv2.VideoWriter(temp_output_raw.name, cv2.VideoWriter_fourcc(*'avc1'), fps, (width, height))
+        out = cv2.VideoWriter(temp_output_raw.name, cv2.VideoWriter_fourcc(*'mp4v'), fps, (width, height))
 
         frame_count = 0
         conf_thresh = st.session_state.conf_threshold
